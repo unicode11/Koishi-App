@@ -1,0 +1,96 @@
+﻿<Window x:Class="KoishiApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KoishiApp"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Koishi App Krokodily-VPN-" Height="337" Width="600">
+    
+    <Window.Resources>
+        <!-- common button -->
+        <Style x:Key="ServiceButton" TargetType="Button">
+            <Setter Property="Width" Value="25" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="ToolTipService.ShowDuration" Value="3000" />
+            <Setter Property="Background" Value="#1a2a02" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid x:Name="MainGrid">
+        <Grid.RowDefinitions>
+            <!-- knopki -->
+            <RowDefinition Height="35" ></RowDefinition>
+            <!-- other huina -->
+            <RowDefinition Height="*" ></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <DockPanel 
+            Grid.ColumnSpan="2">
+            <ListBox Background="#324c11">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel
+                            Orientation="Horizontal"
+                            VerticalAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                        />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBoxItem>
+                    <Button Style="{StaticResource ResourceKey=ServiceButton}"
+                            ToolTip="я тайлер дерден"
+                            Click="GithubButton">
+                        <materialDesign:PackIcon Kind="Github" Width="25" Height="25" Foreground="White" />
+                    </Button>
+                </ListBoxItem>
+                <ListBoxItem>
+                    <Button Style="{StaticResource ResourceKey=ServiceButton}"
+                            ToolTip="во всём виноват rock"
+                            Click="CirnoButton">
+                        <materialDesign:PackIcon Kind="NumericNineBox" Width="25" Height="25" Foreground="White" />
+                    </Button>
+                </ListBoxItem>
+            </ListBox>
+        </DockPanel>
+        <DockPanel x:Name="LeftDocker"
+            Grid.Column="0"
+            Grid.Row="1" 
+            Background="#768d45">
+            <Button Style="{StaticResource ResourceKey=ServiceButton}"
+                    ToolTip="Начать процесс"
+                    Click="StartButton"
+                    Width="150"
+                    Height="50">
+            </Button>
+            
+        </DockPanel>
+        <!-- todo make koishi images for this  -->
+        <DockPanel x:Name="RightDocker"
+            Grid.Row="1" 
+            Grid.Column="1"
+            Background="#afc09b">
+            
+            
+        </DockPanel>
+        
+    </Grid>
+</Window>
