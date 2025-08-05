@@ -57,6 +57,14 @@
                 </ListBox.ItemsPanel>
                 <ListBoxItem>
                     <Button Style="{StaticResource ResourceKey=ServiceButton}"
+                            ToolTip="во всём виноват rock"
+                            Click="RestartButton"
+                    >
+                        <materialDesign:PackIcon Kind="Reload" Width="25" Height="25" Foreground="White" />
+                    </Button>
+                </ListBoxItem>
+                <ListBoxItem>
+                    <Button Style="{StaticResource ResourceKey=ServiceButton}"
                             ToolTip="я тайлер дерден"
                             Click="GithubButton">
                         <materialDesign:PackIcon Kind="Github" Width="25" Height="25" Foreground="White" />
@@ -65,8 +73,17 @@
                 <ListBoxItem>
                     <Button Style="{StaticResource ResourceKey=ServiceButton}"
                             ToolTip="во всём виноват rock"
-                            Click="CirnoButton">
+                            Click="CirnoButton"
+                            >
                         <materialDesign:PackIcon Kind="NumericNineBox" Width="25" Height="25" Foreground="White" />
+                    </Button>
+                </ListBoxItem>
+                <ListBoxItem>
+                    <Button Style="{StaticResource ResourceKey=ServiceButton}"
+                            ToolTip="во всём виноват rock"
+                            Click="CirnoButton"
+                    >
+                        <materialDesign:PackIcon Kind="Dns" Width="25" Height="25" Foreground="White" />
                     </Button>
                 </ListBoxItem>
             </ListBox>
@@ -75,12 +92,66 @@
             Grid.Column="0"
             Grid.Row="1" 
             Background="#768d45">
-            <Button Style="{StaticResource ResourceKey=ServiceButton}"
-                    ToolTip="Начать процесс"
-                    Click="StartButton"
-                    Width="150"
-                    Height="50">
-            </Button>
+            
+            <Border DockPanel.Dock="Top"
+                    CornerRadius="5,5,5,5"
+                    Background="#afc09b"
+                    Margin="5,5,5,5">
+                <TextBlock x:Name="SStatusBar" 
+                           FontFamily="Comic Sans MS"
+                           Text="Жду, пока пользователь додумается"
+                       TextAlignment="Center"
+                       
+                       ></TextBlock>
+            </Border>
+            <Grid> 
+                <StackPanel x:Name="Prelaucnh" Visibility="Visible">
+                    <Button Style="{StaticResource ResourceKey=ServiceButton}"
+                            x:Name="StartProcessButton"
+                            ToolTip="Начать процесс"
+                            Click="StartButton"
+                            Width="150"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Height="50">
+                        <Button.Content>
+                            <TextBlock x:Name="StartProcessText"
+                                       FontFamily="Comic Sans MS"
+                                       TextAlignment="Center">
+                                Нажмите на пупок
+                            </TextBlock>
+                        </Button.Content>
+                    </Button>
+                </StackPanel>
+                
+                <StackPanel x:Name="Postlaunch" Visibility="Collapsed">
+                    <Border Background="#afc09b"
+                            Margin="10"
+                            CornerRadius="4">
+                        <ItemsControl x:Name="IconList">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel Orientation="Vertical"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="{Binding Icon1}" Width="16" Height="16" Margin="1,1"/>
+                                        <TextBlock Text="→" FontSize="12" Margin="0"/>
+                                        <materialDesign:PackIcon Kind="{Binding Icon2}" Width="16" Height="16" Margin="1,1"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
+                    
+                    
+                    
+                </StackPanel>
+            </Grid>
+            
+            
             
         </DockPanel>
         <!-- todo make koishi images for this  -->
