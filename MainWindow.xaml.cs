@@ -53,6 +53,7 @@ public partial class MainWindow : Window
             new() { Icon1 = "Wifi", Icon2 = "Close" },
             new() { Icon1 = "Dns", Icon2 = "Close" },
             new() { Icon1 = "Dns", Icon2 = "Close" },
+            new() { Icon1 = "Web", Icon2 = "Close" },
         };
 
         IconList.ItemsSource = iconPairs;

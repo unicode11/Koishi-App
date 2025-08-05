@@ -78,14 +78,6 @@
                         <materialDesign:PackIcon Kind="NumericNineBox" Width="25" Height="25" Foreground="White" />
                     </Button>
                 </ListBoxItem>
-                <ListBoxItem>
-                    <Button Style="{StaticResource ResourceKey=ServiceButton}"
-                            ToolTip="во всём виноват rock"
-                            Click="CirnoButton"
-                    >
-                        <materialDesign:PackIcon Kind="Dns" Width="25" Height="25" Foreground="White" />
-                    </Button>
-                </ListBoxItem>
             </ListBox>
         </DockPanel>
         <DockPanel x:Name="LeftDocker"
@@ -129,11 +121,6 @@
                             Margin="10"
                             CornerRadius="4">
                         <ItemsControl x:Name="IconList">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel Orientation="Vertical"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal">
@@ -145,10 +132,26 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </Border>
-                    
-                    
-                    
                 </StackPanel>
+                <StackPanel x:Name="GotMessage" Visibility="Collapsed">
+                    <Border Background="#afc09b"
+                            Margin="10"
+                            CornerRadius="4">
+                        <TextBlock
+                            FontSize="16"
+                            Margin="3"
+                            TextAlignment="Center">
+                            Нажмите на ссылку чтобы скопировать
+                        </TextBlock>
+                    </Border>
+                    <Border>
+                        <ListBox Background="#afc09b"
+                                 Margin="10"
+                                 x:Name="Cons">
+                        </ListBox>
+                    </Border>
+                </StackPanel>
+                
             </Grid>
             
             
