@@ -69,9 +69,17 @@ jobs:
           if (Test-Path $tempFolder) { Remove-Item -Recurse -Force $tempFolder }
           New-Item -ItemType Directory -Path $tempFolder | Out-Null
 
-          # Копируем только exe и dll
+          # Копируем только exe
           Copy-Item -Path "publish\*.exe" -Destination $tempFolder
-          Copy-Item -Path "publish\*.dll" -Destination $tempFolder
+
+          # Копируем только dll, игнорируя ненужные
+          Get-ChildItem "publish" -Filter "*.dll" | ForEach-Object {
+              $dll = $_.Name
+              # оставляем dll проекта и сторонние библиотеки (можно уточнить по маске)
+              if ($dll -match "^(KoishiApp|Newtonsoft.Json|SomeOtherLib)\.dll$") {
+                  Copy-Item $_.FullName -Destination $tempFolder
+              }
+          }
 
           # Создаём zip
           Compress-Archive -Path "$tempFolder\*" -DestinationPath $zipName
