@@ -45,7 +45,8 @@ public partial class MainWindow
             "Donate me 10000000$",
             "There's more titles?!",
             "vo vsem vinovat rock",
-            "Yes title is changing :3"
+            "Yes title is changing :3",
+            "ᗜ˰ᗜ"
         };
 
         return titles[new Random().Next(0, titles.Count - 1)];
