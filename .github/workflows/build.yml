@@ -73,10 +73,6 @@ jobs:
           Copy-Item -Path "publish\*.exe" -Destination $tempFolder
           Copy-Item -Path "publish\*.dll" -Destination $tempFolder
 
-          # Создаём инструкцию по установке .NET
-          $readmePath = Join-Path $tempFolder "Install_NET_Runtime.txt"
-          "Для запуска приложения требуется .NET Desktop Runtime 7.0:`nhttps://dotnet.microsoft.com/en-us/download/dotnet/7.0`nУстановите его перед запуском KoishiApp.exe" | Out-File -FilePath $readmePath -Encoding UTF8
-
           # Создаём zip
           Compress-Archive -Path "$tempFolder\*" -DestinationPath $zipName
           echo "ZIP_PATH=$zipName" >> $env:GITHUB_ENV
@@ -93,7 +89,10 @@ jobs:
           body: |
             Релиз версии: ${{ github.ref_name }}
             Сборка exe: ${{ env.VERSION }}
-            В архиве содержится self-contained exe и все зависимости для запуска на Windows.
+            По вопросам - **unicode1** (discord)
+            
+            Для работы приложения требуется установить .NET Desktop Runtime:
+            https://dotnet.microsoft.com/en-us/download/dotnet/7.0
           draft: false
           prerelease: false
 
