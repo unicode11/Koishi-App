@@ -55,14 +55,14 @@ jobs:
       - name: Get version
         id: get_version
         run: |
-          $exePath = "publish/YourApp.exe"
+          $exePath = "publish/KoishiApp.exe"
           $versionInfo = (Get-Item $exePath).VersionInfo
           echo "VERSION=$($versionInfo.FileVersion)" >> $env:GITHUB_ENV
 
       # 7. Создаём zip с именем версии
       - name: Package EXE
         run: |
-          $zipName = "YourApp_v$env:VERSION.zip"
+          $zipName = "KoishiApp_v$env:VERSION.zip"
           cd publish
           Compress-Archive -Path "*.exe" -DestinationPath "../$zipName"
           cd ..
