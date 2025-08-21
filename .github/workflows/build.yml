@@ -17,10 +17,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: 🔄 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🛠 Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
@@ -33,18 +33,29 @@ jobs:
 
       - name: Publish project
         run: dotnet publish ./KoishiApp.csproj --configuration Release --output ./publish --no-restore
+        
+        # нужно чтобы всякое говно было в отдельной папке
+      - name: Organize release files
+        shell: pwsh
+        run: |
+          $libsFolder = "./publish/libs"
+          if (-not (Test-Path $libsFolder)) {
+              New-Item -ItemType Directory -Path $libsFolder | Out-Null
+          }
 
+          Get-ChildItem ./publish -Filter "*.dll" | ForEach-Object {
+              Move-Item $_.FullName $libsFolder
+          }
       - name: Archive release files
         run: Compress-Archive -Path ./publish/* -DestinationPath KoishiApp.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Release ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
           body: |
             Релиз версии: ${{ github.ref_name }}
-            Сборка exe: ${{ env.VERSION }}
             По вопросам - **unicode1** (discord)
           files: KoishiApp.zip
         env:

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Octokit;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Http;
@@ -95,31 +96,41 @@ public partial class MainWindow
         Log.Message($"USER version: {currentVersion}");
         VersionText.Text = currentVersion;
 
-        try
-        {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("request");
-
-            var url = "https://api.github.com/repos/unicode11/Koishi-App/releases/latest";
-            var json = await client.GetStringAsync(url);
-
-            var release = JsonSerializer.Deserialize<GithubRelease>(json);
-            var latestVersion = release?.tag_name?.TrimStart('v') ?? "0.0.0";
-
-            Log.Message($"SERVER version: {latestVersion}");
-
-            if (currentVersion != latestVersion)
-                MessageBox.Show(
-                    $"Доступна новая версия {latestVersion} (у вас {currentVersion}).\nЗайдите на GitHub для обновления.",
-                    "Охайо :)",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information
-                );
-        }
-        catch (Exception ex)
-        {
-            Log.Message("Got an error while checking for version:\n" + ex.Message, 1);
-        }
+        // try
+        // {
+        //     using var client = new HttpClient();
+        //     client.DefaultRequestHeaders.UserAgent.ParseAdd("request");
+        //
+        //     var releases = await client.Repository.Release.GetLatest("octokit", "octokit.net");
+        //     var latest = releases.Result;
+        //     Console.WriteLine(
+        //         "The latest release is tagged at {0} and is named {1}",
+        //         latest.TagName,
+        //         latest.Name);
+        //     Console.WriteLine(
+        //         "The latest release is tagged at {0} and is named {1}", 
+        //         latest.TagName, 
+        //         latest.Name); 
+        //     var url = "https://api.github.com/repos/unicode11/Koishi-App/releases/latest";
+        //     var json = await client.GetStringAsync(url);
+        //
+        //     var release = JsonSerializer.Deserialize<GithubRelease>(json);
+        //     var latestVersion = release?.tag_name?.TrimStart('v') ?? "0.0.0";
+        //
+        //     Log.Message($"SERVER version: {latestVersion}");
+        //
+        //     if (currentVersion != latestVersion)
+        //         MessageBox.Show(
+        //             $"Доступна новая версия {latestVersion} (у вас {currentVersion}).\nЗайдите на GitHub для обновления.",
+        //             "Охайо :)",
+        //             MessageBoxButton.OK,
+        //             MessageBoxImage.Information
+        //         );
+        // }
+        // catch (Exception ex)
+        // {
+        //     Log.Message("Got an error while checking for version:\n" + ex.Message, 1);
+        // }
     }
 
     public class GithubRelease
