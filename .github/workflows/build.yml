@@ -21,18 +21,17 @@ jobs:
       - name: Validate GITHUB_TOKEN
         shell: pwsh
         run: |
-          if [ -z "$GITHUB_TOKEN" ]; then
-            echo "GITHUB_TOKEN is missing! Aborting workflow."
-            exit 1
-          fi
-          response=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${GITHUB_REPOSITORY})
-          if [ "$response" -ne 200 ]; then
-            echo "GITHUB_TOKEN does not have access to the repository! HTTP code: $response"
-            exit 1
-          fi
-          echo "GITHUB_TOKEN is valid."
+          if (-not $env:GITHUB_TOKEN) {
+          Write-Error "TOKEN is missing! Aborting workflow."
+          exit 1
+          }
+          # Проверяем доступ к репозиторию через GitHub API
+          $response = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY" -Headers @{Authorization = "token $env:GITHUB_TOKEN"} -ErrorAction SilentlyContinue
+          if (-not $response) {
+          Write-Error "TOKEN does not have access to the repository!"
+          exit 1
+          }
+          Write-Host "TOKEN is valid."
 
       # 2. Клонируем репозиторий
       - name: Checkout repo
