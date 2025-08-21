@@ -65,21 +65,23 @@ jobs:
         shell: pwsh
         run: |
           $zipName = "KoishiApp_v$env:VERSION.zip"
-
-          # Копируем только exe и dll во временную папку
           $tempFolder = "publish_temp"
           if (Test-Path $tempFolder) { Remove-Item -Recurse -Force $tempFolder }
           New-Item -ItemType Directory -Path $tempFolder | Out-Null
+
           Copy-Item -Path "publish\*.exe" -Destination $tempFolder
-          Copy-Item -Path "publish\*.dll" -Destination $tempFolder
 
-          # Создаём zip
+          Get-ChildItem "publish" -Filter "*.dll" | ForEach-Object {
+              $dll = $_.Name
+              # оставляем dll проекта и сторонние библиотеки (можно уточнить по маске)
+              if ($dll -match "^(KoishiApp|Newtonsoft.Json|SomeOtherLib)\.dll$") {
+                  Copy-Item $_.FullName -Destination $tempFolder
+              }
+          }
+
           Compress-Archive -Path "$tempFolder\*" -DestinationPath $zipName
-
-          # Сохраняем путь для последующего шага
           echo "ZIP_PATH=$zipName" >> $env:GITHUB_ENV
 
-          # Удаляем временную папку
           Remove-Item -Recurse -Force $tempFolder
 
       # 8. Создаём релиз с автоматическим описанием
