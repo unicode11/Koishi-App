@@ -1,95 +1,138 @@
 ﻿using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.ComponentModel;
-using System.Net;
-using System.Text;
+using System.Diagnostics;
+using System.Net.Http;
+using System.Reflection;
+using System.Text.Json;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace KoishiApp;
 
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+///     Interaction logic for MainWindow.xaml
 /// </summary>
-public partial class MainWindow : Window
+public partial class MainWindow
 {
-    private string RandomSmile()
-    {
-        List<string> smiles = new()
-        {
-            ":3", ":)", "c:"
-        };
-        
-        return smiles[new Random().Next(0, smiles.Count - 1)];
-    }
-
-    private string RandomTitle()
-    {
-        List<string> Titles = new()
-        {
-            "Turbo-Crash-Bandicoot", "Penis-Penis-Penis-Penis", "Trojans version",
-            "No handholding :)"
-        };
-        
-        return Titles[new Random().Next(0, Titles.Count - 1)];
-    }
-    
-    private ObservableCollection<IconPair> iconPairs;
+    private readonly ObservableCollection<IconPair> iconPairs;
 
     public MainWindow()
     {
         InitializeComponent();
-
-        iconPairs = new ObservableCollection<IconPair> // да это определенное отличная идея делать вместо норм переменных обращение по позиции :)
-        {
-            new() { Icon1 = "Wifi", Icon2 = "Close" },
-            new() { Icon1 = "Dns", Icon2 = "Close" },
-            new() { Icon1 = "Dns", Icon2 = "Close" },
-            new() { Icon1 = "Web", Icon2 = "Close" },
-        };
+        CheckVersion();
+        iconPairs =
+            new
+                ObservableCollection<IconPair> // да это определенное отличная идея делать вместо норм переменных обращение по позиции :)
+                {
+                    new() { Icon1 = "Wifi", Icon2 = "Close" },
+                    new() { Icon1 = "Dns", Icon2 = "Close" },
+                    new() { Icon1 = "Dns", Icon2 = "Close" },
+                    new() { Icon1 = "Web", Icon2 = "Close" }
+                };
 
         IconList.ItemsSource = iconPairs;
         Title += RandomTitle();
-        SStatusBar.Text+= " " + RandomSmile();
+    }
+
+    private string RandomTitle()
+    {
+        List<string> titles = new()
+        {
+            "Turbo-Crash-Bandicoot",
+            "Penis-Penis-Penis-Penis",
+            "Trojans version",
+            "No handholding :)",
+            "Donate me 10000000$",
+            "There's more titles?!",
+            "vo vsem vinovat rock",
+            "Yes title is changing :3"
+        };
+
+        return titles[new Random().Next(0, titles.Count - 1)];
     }
 
     private void GithubButton(object sender, RoutedEventArgs e)
     {
-        string url = "https://github.com/unicode11/Koishi-App";
+        var url = "https://github.com/unicode11/Koishi-App";
         Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
     }
-    
-    
+
+    private void RestartDebil()
+    {
+        foreach (var icon in iconPairs) icon.Icon2 = "Close";
+        Prelaucnh.Visibility = Visibility.Collapsed;
+        Postlaunch.Visibility = Visibility.Visible;
+        GotMessage.Visibility = Visibility.Collapsed;
+        Main();
+    }
+
     private void RestartButton(object sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        RestartDebil();
     }
 
     private void CirnoButton(object sender, RoutedEventArgs e)
     {
-        string url = "https://i.pinimg.com/1200x/93/8d/a4/938da45d026f9677331a7333b211b25f.jpg";
+        var url = "https://i.pinimg.com/1200x/93/8d/a4/938da45d026f9677331a7333b211b25f.jpg";
         Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
     }
 
     private void StartButton(object sender, RoutedEventArgs e)
     {
-        Prelaucnh.Visibility = Visibility.Collapsed;
-        Postlaunch.Visibility = Visibility.Visible;
-        Main();
+        RestartDebil();
+    }
+
+    private void CopyThat(object sender, MouseButtonEventArgs e)
+    {
+        var textToCopy = Cons.SelectedItem.ToString();
+        Clipboard.SetText(textToCopy);
+    }
+
+    public async Task CheckVersion()
+    {
+        var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        Log.Message($"USER version: {currentVersion}");
+        VersionText.Text = currentVersion;
+
+        try
+        {
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("request");
+
+            var url = "https://api.github.com/repos/unicode11/Koishi-App/releases/latest";
+            var json = await client.GetStringAsync(url);
+
+            var release = JsonSerializer.Deserialize<GithubRelease>(json);
+            var latestVersion = release?.tag_name?.TrimStart('v') ?? "0.0.0";
+
+            Log.Message($"SERVER version: {latestVersion}");
+
+            if (currentVersion != latestVersion)
+                MessageBox.Show(
+                    $"Доступна новая версия {latestVersion} (у вас {currentVersion}).\nЗайдите на GitHub для обновления.",
+                    "Охайо :)",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information
+                );
+        }
+        catch (Exception ex)
+        {
+            Log.Message("Got an error while checking for version:\n" + ex.Message, 1);
+        }
+    }
+
+    public class GithubRelease
+    {
+        public string tag_name { get; set; }
     }
 }
 
 public class IconPair : INotifyPropertyChanged
 {
     private string icon1;
+
+    private string icon2;
+
     public string Icon1
     {
         get => icon1;
@@ -103,7 +146,6 @@ public class IconPair : INotifyPropertyChanged
         }
     }
 
-    private string icon2;
     public string Icon2
     {
         get => icon2;
@@ -118,6 +160,10 @@ public class IconPair : INotifyPropertyChanged
     }
 
     public event PropertyChangedEventHandler PropertyChanged;
-    protected void OnPropertyChanged(string propertyName) =>
+
+    protected void OnPropertyChanged(string propertyName)
+    {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        // totalno spizzeno
+    }
 }
