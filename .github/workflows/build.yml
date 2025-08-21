@@ -69,19 +69,19 @@ jobs:
           if (Test-Path $tempFolder) { Remove-Item -Recurse -Force $tempFolder }
           New-Item -ItemType Directory -Path $tempFolder | Out-Null
 
+          # Копируем только exe и dll
           Copy-Item -Path "publish\*.exe" -Destination $tempFolder
+          Copy-Item -Path "publish\*.dll" -Destination $tempFolder
 
-          Get-ChildItem "publish" -Filter "*.dll" | ForEach-Object {
-              $dll = $_.Name
-              # оставляем dll проекта и сторонние библиотеки (можно уточнить по маске)
-              if ($dll -match "^(KoishiApp|Newtonsoft.Json|SomeOtherLib)\.dll$") {
-                  Copy-Item $_.FullName -Destination $tempFolder
-              }
-          }
+          # Создаём инструкцию по установке .NET
+          $readmePath = Join-Path $tempFolder "Install_NET_Runtime.txt"
+          "Для запуска приложения требуется .NET Desktop Runtime 7.0:`nhttps://dotnet.microsoft.com/en-us/download/dotnet/7.0`nУстановите его перед запуском KoishiApp.exe" | Out-File -FilePath $readmePath -Encoding UTF8
 
+          # Создаём zip
           Compress-Archive -Path "$tempFolder\*" -DestinationPath $zipName
           echo "ZIP_PATH=$zipName" >> $env:GITHUB_ENV
 
+          # Удаляем временную папку
           Remove-Item -Recurse -Force $tempFolder
 
       # 8. Создаём релиз с автоматическим описанием
