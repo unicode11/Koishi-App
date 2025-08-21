@@ -10,26 +10,26 @@ on:
   workflow_dispatch:
 
 env:
-  GITHUB_TOKEN: ${{ secrets.TOKEN }}  # общий токен для всех шагов
+  GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
   build-and-release:
     runs-on: windows-latest
 
     steps:
-      # 1. Проверяем токен и доступ к репозиторию
+      # 1. Проверка токена и доступа
       - name: Validate GITHUB_TOKEN
         shell: pwsh
         run: |
           if (-not $env:GITHUB_TOKEN) {
-          Write-Error "TOKEN is missing! Aborting workflow."
-          exit 1
+              Write-Error "TOKEN is missing! Aborting workflow."
+              exit 1
           }
-          # Проверяем доступ к репозиторию через GitHub API
-          $response = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY" -Headers @{Authorization = "token $env:GITHUB_TOKEN"} -ErrorAction SilentlyContinue
-          if (-not $response) {
-          Write-Error "TOKEN does not have access to the repository!"
-          exit 1
+          try {
+              $response = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY" -Headers @{Authorization = "token $env:GITHUB_TOKEN"}
+          } catch {
+              Write-Error "TOKEN does not have access to the repository!"
+              exit 1
           }
           Write-Host "TOKEN is valid."
 
@@ -47,13 +47,14 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      # 5. Сборка проекта в Release
+      # 5. Сборка self-contained WPF exe
       - name: Build project
-        run: dotnet publish -c Release -o publish
+        run: dotnet publish -c Release -r win-x64 --self-contained true -o publish
 
       # 6. Получаем версию из exe
       - name: Get version
         id: get_version
+        shell: pwsh
         run: |
           $exePath = "publish/KoishiApp.exe"
           $versionInfo = (Get-Item $exePath).VersionInfo
@@ -61,11 +62,10 @@ jobs:
 
       # 7. Создаём zip с именем версии
       - name: Package EXE
+        shell: pwsh
         run: |
           $zipName = "KoishiApp_v$env:VERSION.zip"
-          cd publish
-          Compress-Archive -Path "*.exe" -DestinationPath "../$zipName"
-          cd ..
+          Compress-Archive -Path "publish\*" -DestinationPath $zipName
           echo "ZIP_PATH=$zipName" >> $env:GITHUB_ENV
 
       # 8. Создаём релиз с автоматическим описанием
@@ -77,6 +77,7 @@ jobs:
           body: |
             Релиз версии: ${{ github.ref_name }}
             Сборка exe: ${{ env.VERSION }}
+            В архиве содержится self-contained exe и все зависимости для запуска на Windows.
           draft: false
           prerelease: false
 
@@ -86,7 +87,9 @@ jobs:
         with:
           files: ${{ env.ZIP_PATH }}
 
+      # 10. Очистка временных файлов
       - name: Cleanup temporary files
+        shell: pwsh
         run: |
           if (Test-Path publish) { Remove-Item -Recurse -Force publish }
           if (Test-Path $env:ZIP_PATH) { Remove-Item -Force $env:ZIP_PATH }
