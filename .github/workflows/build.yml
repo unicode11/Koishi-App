@@ -19,6 +19,7 @@ jobs:
     steps:
       # 1. Проверяем токен и доступ к репозиторию
       - name: Validate GITHUB_TOKEN
+        shell: pwsh
         run: |
           if [ -z "$GITHUB_TOKEN" ]; then
             echo "GITHUB_TOKEN is missing! Aborting workflow."
