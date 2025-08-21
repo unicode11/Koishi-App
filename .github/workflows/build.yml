@@ -17,102 +17,35 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # 1. Проверка токена и доступа
-      - name: Validate GITHUB_TOKEN
-        shell: pwsh
-        run: |
-          if (-not $env:GITHUB_TOKEN) {
-              Write-Error "TOKEN is missing! Aborting workflow."
-              exit 1
-          }
-          try {
-              $response = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY" -Headers @{Authorization = "token $env:GITHUB_TOKEN"}
-          } catch {
-              Write-Error "TOKEN does not have access to the repository!"
-              exit 1
-          }
-          Write-Host "TOKEN is valid."
-
-      # 2. Клонируем репозиторий
-      - name: Checkout repo
+      - name: 🔄 Checkout repository
         uses: actions/checkout@v3
 
-      # 3. Устанавливаем .NET
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+      - name: 🛠 Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '8.0.x'
 
-      # 4. Восстанавливаем зависимости
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Restore packages
+        run: dotnet restore ./KoishiApp.csproj
 
-      # 5. Сборка self-contained WPF exe
       - name: Build project
-        run: dotnet publish -c Release -r win-x64 --self-contained true -o publish
+        run: dotnet build ./KoishiApp.csproj --configuration Release --no-restore
 
-      # 6. Получаем версию из exe
-      - name: Get version
-        id: get_version
-        shell: pwsh
-        run: |
-          $exePath = "publish/KoishiApp.exe"
-          $versionInfo = (Get-Item $exePath).VersionInfo
-          echo "VERSION=$($versionInfo.FileVersion)" >> $env:GITHUB_ENV
+      - name: Publish project
+        run: dotnet publish ./KoishiApp.csproj --configuration Release --output ./publish --no-restore
 
-      # 7. Создаём zip с именем версии
-      - name: Package EXE
-        shell: pwsh
-        run: |
-          $zipName = "KoishiApp_v$env:VERSION.zip"
-          $tempFolder = "publish_temp"
-          if (Test-Path $tempFolder) { Remove-Item -Recurse -Force $tempFolder }
-          New-Item -ItemType Directory -Path $tempFolder | Out-Null
+      - name: Archive release files
+        run: Compress-Archive -Path ./publish/* -DestinationPath KoishiApp.zip
 
-          # Копируем только exe
-          Copy-Item -Path "publish\*.exe" -Destination $tempFolder
-
-          # Копируем только dll, игнорируя ненужные
-          Get-ChildItem "publish" -Filter "*.dll" | ForEach-Object {
-              $dll = $_.Name
-              # оставляем dll проекта и сторонние библиотеки (можно уточнить по маске)
-              if ($dll -match "^(KoishiApp|Newtonsoft.Json|SomeOtherLib)\.dll$") {
-                  Copy-Item $_.FullName -Destination $tempFolder
-              }
-          }
-
-          # Создаём zip
-          Compress-Archive -Path "$tempFolder\*" -DestinationPath $zipName
-          echo "ZIP_PATH=$zipName" >> $env:GITHUB_ENV
-
-          # Удаляем временную папку
-          Remove-Item -Recurse -Force $tempFolder
-
-      # 8. Создаём релиз с автоматическим описанием
       - name: Create GitHub Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         with:
+          name: Release ${{ github.ref_name }}
           tag_name: ${{ github.ref_name }}
-          release_name: Release ${{ github.ref_name }}
           body: |
             Релиз версии: ${{ github.ref_name }}
             Сборка exe: ${{ env.VERSION }}
             По вопросам - **unicode1** (discord)
-            
-            Для работы приложения требуется установить .NET Desktop Runtime:
-            https://dotnet.microsoft.com/en-us/download/dotnet/7.0
-          draft: false
-          prerelease: false
-
-      # 9. Загружаем zip как артефакт релиза
-      - name: Upload release asset
-        uses: softprops/action-gh-release@v1
-        with:
-          files: ${{ env.ZIP_PATH }}
-
-      # 10. Очистка временных файлов
-      - name: Cleanup temporary files
-        shell: pwsh
-        run: |
-          if (Test-Path publish) { Remove-Item -Recurse -Force publish }
-          if (Test-Path $env:ZIP_PATH) { Remove-Item -Force $env:ZIP_PATH }
+          files: KoishiApp.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }} # changed from asd_2189sjcv89qjwdAknvy7j :troll:
