@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: check token
         run: |
-          if [ -z "${{ secrets.GITHUB_TOKEN }}" ]; then
+          if [ -z "${{ secrets.TOKEN }}" ]; then
             echo "GITHUB_TOKEN is missing! Aborting workflow."
             exit 1
           else
@@ -62,11 +62,11 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.ZIP_PATH }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
