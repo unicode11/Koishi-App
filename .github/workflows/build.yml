@@ -85,3 +85,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: ${{ env.ZIP_PATH }}
+
+      - name: Cleanup temporary files
+        run: |
+          if (Test-Path publish) { Remove-Item -Recurse -Force publish }
+          if (Test-Path $env:ZIP_PATH) { Remove-Item -Force $env:ZIP_PATH }
